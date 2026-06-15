@@ -1,0 +1,2 @@
+# Human-readable console logs for local development.
+# Activate with: --spring.profiles.active=local

@@ -1,0 +1,58 @@
+services:
+  app:
+    build: .
+    container_name: devsecops-app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/devsecops
+      SPRING_DATASOURCE_USERNAME: devsecops_user
+      SPRING_DATASOURCE_PASSWORD: devsecops_password
+      SPRING_FLYWAY_URL: jdbc:postgresql://postgres:5432/devsecops
+      SPRING_FLYWAY_USER: devsecops_user
+      SPRING_FLYWAY_PASSWORD: devsecops_password
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:17
+    container_name: devsecops-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: devsecops
+      POSTGRES_USER: devsecops_user
+      POSTGRES_PASSWORD: devsecops_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - devsecops_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U devsecops_user -d devsecops"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: devsecops-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - devsecops_redis_data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  devsecops_postgres_data:
+  devsecops_redis_data:

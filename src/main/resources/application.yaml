@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: devsecops
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/devsecops
+    username: devsecops_user
+    password: devsecops_password
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    defer-datasource-initialization: false
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    url: jdbc:postgresql://localhost:5433/devsecops
+    user: devsecops_user
+    password: devsecops_password
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  cache:
+    type: redis
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  info:
+    env:
+      enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
