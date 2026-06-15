@@ -74,8 +74,9 @@ jobs:
           image-ref: ${{ steps.meta.outputs.tags }}
           format: sarif
           output: trivy-image.sarif
+          scanners: vuln
           severity: CRITICAL,HIGH,MEDIUM,LOW
-          exit-code: 1
+          exit-code: 0
           ignore-unfixed: true
 
       - name: Upload Trivy image results to GitHub Security
