@@ -48,10 +48,23 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
+      - name: Configure SonarCloud environment
+        run: |
+          owner="$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')"
+          repo="${{ github.event.repository.name }}"
+          if [ -n "${{ vars.SONAR_ORGANIZATION }}" ]; then
+            echo "SONAR_ORGANIZATION=${{ vars.SONAR_ORGANIZATION }}" >> "$GITHUB_ENV"
+          else
+            echo "SONAR_ORGANIZATION=${owner}" >> "$GITHUB_ENV"
+          fi
+          if [ -n "${{ vars.SONAR_PROJECT_KEY }}" ]; then
+            echo "SONAR_PROJECT_KEY=${{ vars.SONAR_PROJECT_KEY }}" >> "$GITHUB_ENV"
+          else
+            echo "SONAR_PROJECT_KEY=${owner}_${repo}" >> "$GITHUB_ENV"
+          fi
+
       - name: Run tests and SonarCloud analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
-          SONAR_PROJECT_KEY: ${{ vars.SONAR_PROJECT_KEY }}
         run: ./gradlew test jacocoTestReport sonar
